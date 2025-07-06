@@ -3,6 +3,7 @@ package dns
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"encoding/binary"
 )
 
 
@@ -96,6 +97,19 @@ func (header *DNSHeader) SetNSCOUNT(NSCOUNT uint16) {
 
 func (header *DNSHeader) SetARCOUNT(ARCOUNT uint16) {
 	(*header).arcount = ARCOUNT
+}
+
+// Return a byte slice of the struct
+func (header DNSHeader) Serialize() []byte {
+	buf := make([]byte, 12)
+	binary.BigEndian.PutUint16(buf[0:], header.id)
+	buf[2] = header.qr_opcode_aa_tc_rd
+	buf[3] = header.ra_z_rcode
+	binary.BigEndian.PutUint16(buf[4:], header.qdcount)
+	binary.BigEndian.PutUint16(buf[6:], header.ancount)
+	binary.BigEndian.PutUint16(buf[8:], header.nscount)
+	binary.BigEndian.PutUint16(buf[10:], header.arcount)
+	return buf
 }
 
 // Print header contents
