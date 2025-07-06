@@ -105,7 +105,7 @@ func (header DNSHeader) PrintFields() {
 	fmt.Println("----------------------------------------------------")
 	fmt.Printf( "ID          %016b    Packet Identifier\n", header.id)
 	fmt.Printf( "QR          %01b                   Query Response\n", header.qr_opcode_aa_tc_rd >> 7)
-	fmt.Printf( "OPCODE      %04b                Operation Code\n", header.qr_opcode_aa_tc_rd >> 4)
+	fmt.Printf( "OPCODE      %04b                Operation Code\n", header.qr_opcode_aa_tc_rd >> 3 & uint8(15))
 	fmt.Printf( "AA          %01b                   Authoritative Answer\n", header.qr_opcode_aa_tc_rd >> 2 & uint8(1))
 	fmt.Printf( "TC          %01b                   Truncated Message\n", header.qr_opcode_aa_tc_rd >> 1 & uint8(1))
 	fmt.Printf( "RD          %01b                   Recursion Desired\n", header.qr_opcode_aa_tc_rd & uint8(1))
