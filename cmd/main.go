@@ -3,6 +3,7 @@ package main
 import (
 	"net"
 	log "github.com/sirupsen/logrus"
+	"github.com/pr3fx/dns-server-go/api/dns"
 )
 
 func main() {
@@ -22,7 +23,7 @@ func main() {
 	}
 	log.Info("Bind to address successful")
 	defer udpConn.Close()
-	
+
 	buf := make([]byte, 512)
 	
 	for {
@@ -33,10 +34,13 @@ func main() {
 		}
 	
 		receivedData := string(buf[:size])
-		log.Error("Received %d bytes from %s: %s", size, source, receivedData)
+		log.Info("Received %d bytes from %s: %s", size, source, receivedData)
 	
-		// Create an empty response
-		response := []byte{}
+		// Create a DNS response (header only)
+		dns_header := dns.DNSHeader{}
+		dns_header.SetID(1234)
+		dns_header.SetQR(1) // Set response type
+		response := dns_header.Serialize()
 	
 		_, err = udpConn.WriteToUDP(response, source)
 		if err != nil {
