@@ -15,3 +15,20 @@ func (message *DNSMessage) AddQuestion(question DNSQuestion) {
 	// Increment QDCOUNT header field
 	(*message).header.SetQDCOUNT((*message).header.qdcount + 1)
 }
+
+func (message DNSMessage) Serialize() []byte {
+	header_buf := message.header.Serialize()
+	question_buf_cap := uint16(0)
+	for _, q := range message.question {
+		question_buf_cap += q.GetByteLen()
+	}
+	question_buf := make([]byte, 0, question_buf_cap)
+	for _, q := range message.question {
+		question_buf = append(question_buf, q.Serialize()...)
+	}
+
+	buf := make([]byte, 0, len(header_buf) + len(question_buf))
+	buf = append(buf, header_buf...)
+	buf = append(buf, question_buf...)
+	return buf
+}
