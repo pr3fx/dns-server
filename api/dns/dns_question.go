@@ -40,6 +40,10 @@ func (question *DNSQuestion) SetClass(class uint16) {
 	(*question).class = class
 }
 
+func (question *DNSQuestion) GetByteLen() uint16 {
+	return uint16(len((*question).name) + 4)
+}
+
 // Serialize to bytes (big-endian)
 func (question DNSQuestion) Serialize() []byte {
 	buf := make([]byte, len(question.name) + 4)
