@@ -1,5 +1,9 @@
 package dns
 
+import (
+	"encoding/binary"
+)
+
 
 type DNSQuestion struct {
 	name []byte
@@ -34,4 +38,18 @@ func (question *DNSQuestion) SetRecordType(record_type uint16) {
 
 func (question *DNSQuestion) SetClass(class uint16) {
 	(*question).class = class
+}
+
+// Serialize to bytes (big-endian)
+func (question DNSQuestion) Serialize() []byte {
+	buf := make([]byte, len(question.name) + 4)
+	// Serialize encoded domain
+	for idx, v := range question.name {
+		buf[idx] = v
+	}
+	// Serialize type and class
+	binary.BigEndian.PutUint16(buf[len(question.name):], question.record_type)
+	binary.BigEndian.PutUint16(buf[len(question.name)+2:], question.class)
+
+	return buf
 }
