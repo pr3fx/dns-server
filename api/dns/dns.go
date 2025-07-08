@@ -1,5 +1,10 @@
 package dns
 
+import (
+	"fmt"
+	log "github.com/sirupsen/logrus"
+)
+
 
 type DNSMessage struct {
 	header DNSHeader
@@ -25,6 +30,14 @@ func (message DNSMessage) Serialize() []byte {
 	question_buf := make([]byte, 0, question_buf_cap)
 	for _, q := range message.question {
 		question_buf = append(question_buf, q.Serialize()...)
+	}
+	if uint16(len(question_buf)) != question_buf_cap {
+		log.Warning(
+			fmt.Sprintf("Expected DNSQuestion buffer length and actual length differ: " +
+                "%v bytes expected, %v bytes actual",
+				question_buf_cap,
+				len(question_buf),
+			))
 	}
 
 	buf := make([]byte, 0, len(header_buf) + len(question_buf))
