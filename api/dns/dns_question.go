@@ -11,6 +11,14 @@ type DNSQuestion struct {
 	qclass uint16
 }
 
+func NewDNSQuestion(domain_name string, record_type RecordType, class uint16) DNSQuestion {
+	new_dns_question := DNSQuestion{}
+	new_dns_question.SetQNAME(domain_name)
+	new_dns_question.SetQTYPE(record_type)
+	new_dns_question.SetQCLASS(class)
+	return new_dns_question
+}
+
 func (question *DNSQuestion) SetQNAME(domain_name string) {
 	(*question).qname = make([]byte, 1, len(domain_name)+2)
 	// Encode domain name string
