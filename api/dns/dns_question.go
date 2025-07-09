@@ -7,7 +7,7 @@ import (
 
 type DNSQuestion struct {
 	name []byte
-	record_type uint16
+	record_type RecordType
 	class uint16
 }
 
@@ -32,7 +32,7 @@ func (question *DNSQuestion) SetName(domain_name string) {
 	(*question).name = append((*question).name, 0)
 }
 
-func (question *DNSQuestion) SetRecordType(record_type uint16) {
+func (question *DNSQuestion) SetRecordType(record_type RecordType) {
 	(*question).record_type = record_type
 }
 
@@ -52,7 +52,7 @@ func (question DNSQuestion) Serialize() []byte {
 		buf[idx] = v
 	}
 	// Serialize type and class
-	binary.BigEndian.PutUint16(buf[len(question.name):], question.record_type)
+	binary.BigEndian.PutUint16(buf[len(question.name):], uint16(question.record_type))
 	binary.BigEndian.PutUint16(buf[len(question.name)+2:], question.class)
 
 	return buf
