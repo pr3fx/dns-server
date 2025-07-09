@@ -6,54 +6,54 @@ import (
 
 
 type DNSQuestion struct {
-	name []byte
-	record_type RecordType
-	class uint16
+	qname []byte
+	qtype RecordType
+	qclass uint16
 }
 
-func (question *DNSQuestion) SetName(domain_name string) {
-	(*question).name = make([]byte, 1, len(domain_name)+2)
+func (question *DNSQuestion) SetQNAME(domain_name string) {
+	(*question).qname = make([]byte, 1, len(domain_name)+2)
 	// Encode domain name string
 	var i int
 	j := uint8(0)
 	k := 0
 	for i=0; i<len(domain_name); i++ {
 		if domain_name[i] != "."[0] {
-			(*question).name = append((*question).name, domain_name[i])
+			(*question).qname = append((*question).qname, domain_name[i])
 			j++
 		} else {
-			(*question).name[k] = j
-			(*question).name = append((*question).name, 0)
+			(*question).qname[k] = j
+			(*question).qname = append((*question).qname, 0)
 			k = i + 1
 			j = 0
 		}
 	}
-	(*question).name[k] = j
-	(*question).name = append((*question).name, 0)
+	(*question).qname[k] = j
+	(*question).qname = append((*question).qname, 0)
 }
 
-func (question *DNSQuestion) SetRecordType(record_type RecordType) {
-	(*question).record_type = record_type
+func (question *DNSQuestion) SetQTYPE(record_type RecordType) {
+	(*question).qtype = record_type
 }
 
-func (question *DNSQuestion) SetClass(class uint16) {
-	(*question).class = class
+func (question *DNSQuestion) SetQCLASS(class uint16) {
+	(*question).qclass = class
 }
 
 func (question *DNSQuestion) GetByteLen() uint16 {
-	return uint16(len((*question).name) + 4)
+	return uint16(len((*question).qname) + 4)
 }
 
 // Serialize to bytes (big-endian)
 func (question DNSQuestion) Serialize() []byte {
-	buf := make([]byte, len(question.name) + 4)
+	buf := make([]byte, len(question.qname) + 4)
 	// Serialize encoded domain
-	for idx, v := range question.name {
+	for idx, v := range question.qname {
 		buf[idx] = v
 	}
 	// Serialize type and class
-	binary.BigEndian.PutUint16(buf[len(question.name):], uint16(question.record_type))
-	binary.BigEndian.PutUint16(buf[len(question.name)+2:], question.class)
+	binary.BigEndian.PutUint16(buf[len(question.qname):], uint16(question.qtype))
+	binary.BigEndian.PutUint16(buf[len(question.qname)+2:], question.qclass)
 
 	return buf
 }
