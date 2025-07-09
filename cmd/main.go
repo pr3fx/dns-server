@@ -40,14 +40,10 @@ func main() {
 		dns_header := dns.DNSHeader{}
 		dns_header.SetID(1234)
 		dns_header.SetQR(1) // Set response type
-		dns_question := dns.DNSQuestion{}
-		dns_question.SetName("codecrafters.io")
-		dns_question.SetRecordType(1)
-		dns_question.SetClass(1)
 
 		dns_msg := dns.DNSMessage{}
 		dns_msg.SetHeader(dns_header)
-		dns_msg.AddQuestion(dns_question)
+		dns_msg.AddQuestion(dns.NewDNSQuestion("codecrafters.io", dns.RecordType_A, 1))
 		response := dns_msg.Serialize()
 
 		_, err = udpConn.WriteToUDP(response, source)
