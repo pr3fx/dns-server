@@ -35,13 +35,21 @@ func main() {
 	
 		receivedData := string(buf[:size])
 		log.Info("Received %d bytes from %s: %s", size, source, receivedData)
-	
-		// Create a DNS response (header only)
+
+		// Create a DNS response (header and question)
 		dns_header := dns.DNSHeader{}
 		dns_header.SetID(1234)
 		dns_header.SetQR(1) // Set response type
-		response := dns_header.Serialize()
-	
+		dns_question := dns.DNSQuestion{}
+		dns_question.SetName("codecrafters.io")
+		dns_question.SetRecordType(1)
+		dns_question.SetClass(1)
+
+		dns_msg := dns.DNSMessage{}
+		dns_msg.SetHeader(dns_header)
+		dns_msg.AddQuestion(dns_question)
+		response := dns_msg.Serialize()
+
 		_, err = udpConn.WriteToUDP(response, source)
 		if err != nil {
 			log.Error("Failed to send response:", err)
