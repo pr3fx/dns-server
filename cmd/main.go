@@ -4,6 +4,7 @@ import (
 	"net"
 	log "github.com/sirupsen/logrus"
 	"github.com/pr3fx/dns-server-go/api/dns"
+	"fmt"
 )
 
 func main() {
@@ -34,7 +35,7 @@ func main() {
 		}
 	
 		receivedData := string(buf[:size])
-		log.Info("Received %d bytes from %s: %s", size, source, receivedData)
+		log.Info(fmt.Sprintf("Received %d bytes from %s: %s", size, source, receivedData))
 
 		// Create a DNS response (header and question)
 		dns_header := dns.DNSHeader{}
