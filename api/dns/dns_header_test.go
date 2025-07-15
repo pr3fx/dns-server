@@ -5,7 +5,7 @@ import (
 )
 
 
-var TestVectors = []struct{
+var TestVectors_QR_OPCODE_AA_TC_RD = []struct{
 	qr uint8
 	opcode uint8
 	aa uint8
@@ -26,7 +26,7 @@ var TestVectors = []struct{
 func TestSet_QR_OPCODE_AA_TC_RD(t *testing.T) {
 	header := DNSHeader{}
 	var err error
-	for _, testVector := range TestVectors {
+	for _, testVector := range TestVectors_QR_OPCODE_AA_TC_RD {
 		err = header.SetQR(testVector.qr)
 		if err != nil {
 			t.Errorf(`Error when setting QR: %s`, err)
@@ -49,6 +49,45 @@ func TestSet_QR_OPCODE_AA_TC_RD(t *testing.T) {
 		}
 		if header.qr_opcode_aa_tc_rd != testVector.want {
 			t.Errorf(`header.qr_opcode_aa_tc_rd = %v, want %v`, header.qr_opcode_aa_tc_rd, testVector.want)
+		}
+	}
+}
+
+var TestVectors_RA_Z_RCODE = []struct{
+	ra uint8
+	z uint8
+	rcode uint8
+	want uint8
+}{
+//   RA, Z,   RCODE, want
+//       111  1111   11111111
+	{1,  7,   15,    255},
+//       010  1000   00101000
+	{0,  2,   8,     40},
+//       101  1110   11011110
+	{1,  5,   14,    222},
+//       000  0000   00000000
+	{0,  0,   0,     0},
+}
+
+func TestSet_RA_Z_RCODE(t *testing.T) {
+	header := DNSHeader{}
+	var err error
+	for _, testVector := range TestVectors_RA_Z_RCODE {
+		err = header.SetRA(testVector.ra)
+		if err != nil {
+			t.Errorf(`Error when setting RA: %s`, err)
+		}
+		err = header.SetZ(testVector.z)
+		if err != nil {
+			t.Errorf(`Error when setting Z: %s`, err)
+		}
+		err = header.SetRCODE(testVector.rcode)
+		if err != nil {
+			t.Errorf(`Error when setting RCODE: %s`, err)
+		}
+		if header.ra_z_rcode != testVector.want {
+			t.Errorf(`header.ra_z_rcode = %v, want %v`, header.ra_z_rcode, testVector.want)
 		}
 	}
 }
