@@ -2,6 +2,7 @@ package dns
 
 import (
 	"testing"
+	"reflect"
 )
 
 
@@ -88,6 +89,24 @@ func TestSet_RA_Z_RCODE(t *testing.T) {
 		}
 		if header.ra_z_rcode != testVector.want {
 			t.Errorf(`header.ra_z_rcode = %v, want %v`, header.ra_z_rcode, testVector.want)
+		}
+	}
+}
+
+var TestVectors_Serialize = []struct{
+	header DNSHeader
+	want []byte
+}{
+	{DNSHeader{65535,255,255,65535,65535,65535,65535}, []byte{255,255,255,255,255,255,255,255,255,255,255,255,}},
+	{DNSHeader{0,0,0,0,0,0,0}, []byte{0,0,0,0,0,0,0,0,0,0,0,0,}},
+	{DNSHeader{43690,240,29,60331,11179,12267,3}, []byte{170,170,240,29,235,171,43,171,47,235,0,3,}},
+}
+
+func TestSerialize(t *testing.T) {
+	for _, testVector := range TestVectors_Serialize {
+		got_buf := testVector.header.Serialize()
+		if !reflect.DeepEqual(got_buf, testVector.want) {
+			t.Errorf(`header.Serialize() = %v, want %v`, got_buf, testVector.want)
 		}
 	}
 }
