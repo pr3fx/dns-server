@@ -4,6 +4,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"encoding/binary"
+	"errors"
 )
 
 
@@ -28,59 +29,113 @@ func (header *DNSHeader) SetID(ID uint16) {
 	(*header).id = ID
 }
 
-func (header *DNSHeader) SetQR(QR uint8) {
+func (header *DNSHeader) SetQR(QR uint8) error {
 	if QR > 1 {
-		log.Warning(fmt.Sprintf("Attempting to set QR bit with a value greater than 1 (%v)", QR))
-		log.Warning("Only the first bit from the input (QR) will be used, others will be ignored.")
+		log.Error(fmt.Sprintf("Attempting to set QR bit with a value greater than 1 (%v)", QR))
+		return errors.New("Input QR value greater than 1")
 	}
-	(*header).qr_opcode_aa_tc_rd |= QR & uint8(1) << 7
+	mask := uint8(128) // 10000000
+	if QR == 1 {
+		(*header).qr_opcode_aa_tc_rd |= mask
+	} else {
+		(*header).qr_opcode_aa_tc_rd &= ^mask
+	}
+	return nil
 }
 
-func (header *DNSHeader) SetOPCODE(OPCODE uint8) {
-	// Take only 4 LSBs
-	(*header).qr_opcode_aa_tc_rd |= OPCODE & uint8(15) << 3
+func (header *DNSHeader) SetOPCODE(OPCODE uint8) error {
+	if OPCODE > 15 {
+		log.Error(fmt.Sprintf("Attempting to set OPCODE with a value greater than 15 (%v)", OPCODE))
+		return errors.New("Input OPCODE value greater than 15")
+	}
+	// Clear OPCODE field
+	mask := uint8(135) // 10000111
+	(*header).qr_opcode_aa_tc_rd &= mask
+	// Set OPCODE bits
+	(*header).qr_opcode_aa_tc_rd |= OPCODE << 3
+	return nil
 }
 
-func (header *DNSHeader) SetAA(AA uint8) {
+func (header *DNSHeader) SetAA(AA uint8) error {
 	if AA > 1 {
-		log.Warning(fmt.Sprintf("Attempting to set AA bit with a value greater than 1 (%v)", AA))
-		log.Warning("Only the first bit from the input (AA) will be used, others will be ignored.")
+		log.Error(fmt.Sprintf("Attempting to set AA bit with a value greater than 1 (%v)", AA))
+		return errors.New("Input AA value greater than 1")
 	}
-	(*header).qr_opcode_aa_tc_rd |= AA & uint8(1) << 2
+	mask := uint8(4) // 00000100
+	if AA == 1 {
+		(*header).qr_opcode_aa_tc_rd |= mask
+	} else {
+		(*header).qr_opcode_aa_tc_rd &= ^mask
+	}
+	return nil
 }
 
-func (header *DNSHeader) SetTC(TC uint8) {
+func (header *DNSHeader) SetTC(TC uint8) error {
 	if TC > 1 {
-		log.Warning(fmt.Sprintf("Attempting to set TC bit with a value greater than 1 (%v)", TC))
-		log.Warning("Only the first bit from the input (TC) will be used, others will be ignored.")
+		log.Error(fmt.Sprintf("Attempting to set TC bit with a value greater than 1 (%v)", TC))
+		return errors.New("Input TC value greater than 1")
 	}
-	(*header).qr_opcode_aa_tc_rd |= TC & uint8(1) << 1
+	mask := uint8(2) // 00000010
+	if TC == 1 {
+		(*header).qr_opcode_aa_tc_rd |= mask
+	} else {
+		(*header).qr_opcode_aa_tc_rd &= ^mask
+	}
+	return nil
 }
 
-func (header *DNSHeader) SetRD(RD uint8) {
+func (header *DNSHeader) SetRD(RD uint8) error {
 	if RD > 1 {
-		log.Warning(fmt.Sprintf("Attempting to set RD bit with a value greater than 1 (%v)", RD))
-		log.Warning("Only the first bit from the input (RD) will be used, others will be ignored.")
+		log.Error(fmt.Sprintf("Attempting to set RD bit with a value greater than 1 (%v)", RD))
+		return errors.New("Input RD value greater than 1")
 	}
-	(*header).qr_opcode_aa_tc_rd |= RD & uint8(1)
+	mask := uint8(1) // 00000001
+	if RD == 1 {
+		(*header).qr_opcode_aa_tc_rd |= mask
+	} else {
+		(*header).qr_opcode_aa_tc_rd &= ^mask
+	}
+	return nil
 }
 
-func (header *DNSHeader) SetRA(RA uint8) {
+func (header *DNSHeader) SetRA(RA uint8) error {
 	if RA > 1 {
-		log.Warning(fmt.Sprintf("Attempting to set RA bit with a value greater than 1 (%v)", RA))
-		log.Warning("Only the first bit from the input (RA) will be used, others will be ignored.")
+		log.Error(fmt.Sprintf("Attempting to set RA bit with a value greater than 1 (%v)", RA))
+		return errors.New("Input RA value greater than 1")
 	}
-	(*header).ra_z_rcode |= RA & uint8(1) << 7
+	mask := uint8(128) // 10000000
+	if RA == 1 {
+		(*header).ra_z_rcode |= mask
+	} else {
+		(*header).ra_z_rcode &= ^mask
+	}
+	return nil
 }
 
-func (header *DNSHeader) SetZ(Z uint8) {
-	// Take only 3 LSBs
-	(*header).ra_z_rcode |= Z & uint8(7) << 4
+func (header *DNSHeader) SetZ(Z uint8) error {
+	if Z > 7 {
+		log.Error(fmt.Sprintf("Attempting to set Z bit with a value greater than 7 (%v)", Z))
+		return errors.New("Input Z value greater than 7")
+	}
+	// Clear Z bits
+	mask := uint8(143) // 10001111
+	(*header).ra_z_rcode &= mask
+	// Set Z bits
+	(*header).ra_z_rcode |= Z << 4
+	return nil
 }
 
-func (header *DNSHeader) SetRCODE(RCODE uint8) {
-	// Take only 4 LSBs
-	(*header).ra_z_rcode |= RCODE & uint8(15)
+func (header *DNSHeader) SetRCODE(RCODE uint8) error {
+	if RCODE > 15 {
+		log.Error(fmt.Sprintf("Attempting to set RCODE bit with a value greater than 15 (%v)", RCODE))
+		return errors.New("Input RCODE value greater than 15")
+	}
+	// Clear RCODE bits
+	mask := uint8(240) // 11110000
+	(*header).ra_z_rcode &= mask
+	// Set RCODE bits
+	(*header).ra_z_rcode |= RCODE
+	return nil
 }
 
 func (header *DNSHeader) SetQDCOUNT(QDCOUNT uint16) {
