@@ -43,6 +43,10 @@ func (answer *DNSAnswer) SetRDATA(rdata []byte) {
 	(*answer).rdata = rdata
 }
 
+func (answer *DNSAnswer) GetByteLen() uint32 {
+	return uint32(len((*answer).name) + len((*answer).rdata) + 12)
+}
+
 func (answer DNSAnswer) Serialize() []byte {
 	buf := make([]byte, len(answer.name)+len(answer.rdata)+12)
 	// Serialize encoded domain name
