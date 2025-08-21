@@ -20,24 +20,7 @@ func NewDNSQuestion(domain_name string, record_type RecordType, class uint16) DN
 }
 
 func (question *DNSQuestion) SetQNAME(domain_name string) {
-	(*question).qname = make([]byte, 1, len(domain_name)+2)
-	// Encode domain name string
-	var i int
-	j := uint8(0)
-	k := 0
-	for i=0; i<len(domain_name); i++ {
-		if domain_name[i] != "."[0] {
-			(*question).qname = append((*question).qname, domain_name[i])
-			j++
-		} else {
-			(*question).qname[k] = j
-			(*question).qname = append((*question).qname, 0)
-			k = i + 1
-			j = 0
-		}
-	}
-	(*question).qname[k] = j
-	(*question).qname = append((*question).qname, 0)
+	(*question).qname = encodeDomainName(domain_name)
 }
 
 func (question *DNSQuestion) SetQTYPE(record_type RecordType) {
