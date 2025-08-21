@@ -14,32 +14,32 @@ type DNSAnswer struct {
 	rdata []byte
 }
 
-func newDNSAnswer(domain_name string) DNSAnswer {
+func NewDNSAnswer(domain_name string) DNSAnswer {
 	new_dns_answer := DNSAnswer{}
 	return new_dns_answer
 }
 
-func (answer *DNSAnswer) setNAME(domain_name string) {
+func (answer *DNSAnswer) SetNAME(domain_name string) {
 	(*answer).name = encodeDomainName(domain_name)
 }
 
-func (answer *DNSAnswer) setTYPE(record_type RecordType) {
+func (answer *DNSAnswer) SetTYPE(record_type RecordType) {
 	(*answer).ans_type = record_type
 }
 
-func (answer *DNSAnswer) setCLASS(class uint16) {
+func (answer *DNSAnswer) SetCLASS(class uint16) {
 	(*answer).class = class
 }
 
-func (answer *DNSAnswer) setTTL(ttl uint32) {
+func (answer *DNSAnswer) SetTTL(ttl uint32) {
 	(*answer).ttl = ttl
 }
 
-func (answer *DNSAnswer) setRDLENGTH(rdlength uint32) {
+func (answer *DNSAnswer) SetRDLENGTH(rdlength uint32) {
 	(*answer).rdlength = rdlength
 }
 
-func (answer *DNSAnswer) setRDATA(rdata []byte) {
+func (answer *DNSAnswer) SetRDATA(rdata []byte) {
 	(*answer).rdata = rdata
 }
 
