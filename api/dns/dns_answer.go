@@ -14,8 +14,17 @@ type DNSAnswer struct {
 	rdata []byte
 }
 
-func NewDNSAnswer(domain_name string) DNSAnswer {
+func NewDNSAnswer(domain_name string, class uint16, ttl uint32, answer DNSAnswerIntf) DNSAnswer {
+	record_type := answer.getRecordType()
+	rdata, rdlength := answer.serializeToBigEndianBytes()
+
 	new_dns_answer := DNSAnswer{}
+	new_dns_answer.SetNAME(domain_name)
+	new_dns_answer.SetTYPE(record_type)
+	new_dns_answer.SetCLASS(class)
+	new_dns_answer.SetTTL(ttl)
+	new_dns_answer.SetRDLENGTH(rdlength)
+	new_dns_answer.SetRDATA(rdata)
 	return new_dns_answer
 }
 
