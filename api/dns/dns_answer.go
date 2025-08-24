@@ -69,7 +69,7 @@ func (answer DNSAnswer) Serialize() []byte {
 	binary.BigEndian.PutUint32(buf[len(answer.name)+8:], answer.rdlength)
 	// Serialize encoded domain name
 	for idx, v := range answer.rdata {
-		buf[12+idx] = v
+		buf[len(answer.name)+12+idx] = v
 	}
 
 	return buf
