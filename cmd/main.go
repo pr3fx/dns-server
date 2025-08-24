@@ -45,6 +45,11 @@ func main() {
 		dns_msg := dns.DNSMessage{}
 		dns_msg.SetHeader(dns_header)
 		dns_msg.AddQuestion(dns.NewDNSQuestion("codecrafters.io", dns.RecordType_A, 1))
+		dns_answer_type, err := dns.NewTypeA_Answer(net.IPv4(8,8,8,8))
+		if err != nil {
+			fmt.Errorf(`Encountered error while creating dns_answer_type: %v`, err)
+		}
+		dns_msg.AddAnswer(dns.NewDNSAnswer("codecrafters.io", uint16(1), uint32(60), dns_answer_type))
 		response := dns_msg.Serialize()
 
 		_, err = udpConn.WriteToUDP(response, source)
