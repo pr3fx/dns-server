@@ -187,3 +187,29 @@ func (header DNSHeader) PrintFields() {
 	fmt.Printf( "ARCOUNT     %016b    Additional Count\n", header.arcount)
 	fmt.Println("----------------------------------------------------")
 }
+
+
+// Parsing functions
+func ParseHeader(header_bytes []byte) (DNSHeader, error) {
+	if len(header_bytes) < 12 {
+		return DNSHeader{}, fmt.Errorf(`bytestream is %v bytes, expected 12 or more.`, len(header_bytes))
+	}
+	ID_parsed := binary.BigEndian.Uint16(header_bytes[0:2])
+	QR_OPCODE_AA_TC_RD_parsed := header_bytes[2]
+	RA_Z_RCODE_parsed := header_bytes[3]
+	QDCOUNT_parsed := binary.BigEndian.Uint16(header_bytes[4:6])
+	ANCOUNT_parsed := binary.BigEndian.Uint16(header_bytes[6:8])
+	NSCOUNT_parsed := binary.BigEndian.Uint16(header_bytes[8:10])
+	ARCOUNT_parsed := binary.BigEndian.Uint16(header_bytes[10:12])
+	// Create DNSHeader struct from parsed values
+	parsed_header := DNSHeader{
+		id:ID_parsed,
+		qr_opcode_aa_tc_rd:QR_OPCODE_AA_TC_RD_parsed,
+		ra_z_rcode:RA_Z_RCODE_parsed,
+		qdcount:QDCOUNT_parsed,
+		ancount:ANCOUNT_parsed,
+		nscount:NSCOUNT_parsed,
+		arcount:ARCOUNT_parsed,
+	}
+	return parsed_header, nil
+}
