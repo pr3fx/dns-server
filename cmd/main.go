@@ -3,7 +3,7 @@ package main
 import (
 	"net"
 	log "github.com/sirupsen/logrus"
-	"github.com/pr3fx/dns-server-go/api/dns"
+	"github.com/pr3fx/dns-server-go/internal/dns"
 	"fmt"
 )
 
