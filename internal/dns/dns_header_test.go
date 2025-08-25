@@ -110,3 +110,25 @@ func TestSerialize(t *testing.T) {
 		}
 	}
 }
+
+
+var TestVectors_Parse = []struct{
+	header DNSHeader
+	want DNSHeader
+}{
+	{DNSHeader{65535,255,255,65535,65535,65535,65535}, DNSHeader{65535,255,255,65535,65535,65535,65535}},
+	{DNSHeader{0,0,0,0,0,0,0}, DNSHeader{0,0,0,0,0,0,0}},
+	{DNSHeader{43690,240,29,60331,11179,12267,3}, DNSHeader{43690,240,29,60331,11179,12267,3}},
+}
+
+func TestParse(t *testing.T) {
+	for _, testVector := range TestVectors_Parse {
+		got_header_parsed, err := ParseHeader(testVector.header.Serialize())
+		if err != nil {
+			t.Errorf(`Encountered error while parsing header: %v`, err)
+		}
+		if got_header_parsed != testVector.header {
+			t.Errorf(`header_parsed = %v want %v`, got_header_parsed, testVector.header)
+		}
+	}
+}
