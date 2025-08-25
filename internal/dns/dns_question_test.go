@@ -51,3 +51,38 @@ func TestSerializeQuestion(t *testing.T) {
 		}
 	}
 }
+
+
+var TestVectors_ParseQuestions = []struct{
+	qdcount uint16
+	question_bytestream []byte
+	want []DNSQuestion
+}{
+	{
+		uint16(3),
+		append(
+			append(
+				DNSQuestion{[]byte{12,99,111,100,101,99,114,97,102,116,101,114,115,2,105,111,0}, RecordType_A, uint16(1)}.Serialize(),
+				DNSQuestion{[]byte{3,119,119,119,12,99,111,100,101,99,114,97,102,116,101,114,115,2,105,111,0}, RecordType_AAAA, uint16(20)}.Serialize()...
+			),
+			DNSQuestion{[]byte{3,119,119,119,2,117,112,2,97,99,2,122,97,0}, RecordType_NS, uint16(255)}.Serialize()...
+		),
+		[]DNSQuestion{
+			DNSQuestion{[]byte{12,99,111,100,101,99,114,97,102,116,101,114,115,2,105,111,0}, RecordType_A, uint16(1)},
+			DNSQuestion{[]byte{3,119,119,119,12,99,111,100,101,99,114,97,102,116,101,114,115,2,105,111,0}, RecordType_AAAA, uint16(20)},
+			DNSQuestion{[]byte{3,119,119,119,2,117,112,2,97,99,2,122,97,0}, RecordType_NS, uint16(255)},
+		},
+	},
+}
+
+func TestParseQuestion(t *testing.T) {
+	for _, testVector := range TestVectors_ParseQuestions {
+		got_parsed_questions, err := ParseQuestions(testVector.question_bytestream, testVector.qdcount)
+		if err != nil {
+			t.Errorf(`Error encountered while parsing questions: %v`, err)
+		}
+		if !reflect.DeepEqual(got_parsed_questions, testVector.want) {
+			t.Errorf(`parsed_questions = %v, want %v`, got_parsed_questions, testVector.want)
+		}
+	}
+}
