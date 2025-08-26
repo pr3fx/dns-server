@@ -60,7 +60,7 @@ func ParseQuestions(question_stream []byte, QDCOUNT uint16) ([]DNSQuestion, int,
 	stream_pos := 0
 	var question_list []DNSQuestion
 	for i := 0; i < int(QDCOUNT); i++ {
-		QNAME_len, err := getQNAMElen(question_stream[stream_pos:])
+		QNAME_len, err := getEncodedDomainLen(question_stream[stream_pos:])
 		if err != nil {
 			return nil, 0, err
 		}
@@ -86,19 +86,4 @@ func ParseQuestions(question_stream []byte, QDCOUNT uint16) ([]DNSQuestion, int,
 	}
 
 	return question_list, stream_pos, nil
-}
-
-func getQNAMElen(buf []byte) (uint16, error) {
-	var byte_count uint16 = 1
-	j := uint8(buf[0])
-
-	for j != 0 {
-		byte_count += uint16(j) + 1
-		if len(buf) < int(byte_count) {
-			return 0, fmt.Errorf(`QNAME malformed or bytestream truncated`)
-		}
-		j = buf[byte_count-1]
-	}
-
-	return byte_count, nil
 }

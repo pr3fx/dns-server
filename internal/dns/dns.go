@@ -1,5 +1,9 @@
 package dns
 
+import (
+	"fmt"
+)
+
 type RecordType uint16
 const (
 	RecordType_A RecordType = 1
@@ -27,4 +31,19 @@ func encodeDomainName(domain_name string) []byte {
 	encoded_domain = append(encoded_domain, 0)
 
 	return encoded_domain
+}
+
+func getEncodedDomainLen(buf []byte) (uint16, error) {
+	var byte_count uint16 = 1
+	j := uint8(buf[0])
+
+	for j != 0 {
+		byte_count += uint16(j) + 1
+		if len(buf) < int(byte_count) {
+			return 0, fmt.Errorf(`Encoded domain malformed or bytestream truncated`)
+		}
+		j = buf[byte_count-1]
+	}
+
+	return byte_count, nil
 }
