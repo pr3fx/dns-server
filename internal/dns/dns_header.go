@@ -24,7 +24,76 @@ type DNSHeader struct {
 }
 
 
-// DNSHeader field-setting functions
+// DNSHeader field-getter fuctions
+func (header *DNSHeader) GetID() uint16 {
+	return (*header).id
+}
+
+func (header *DNSHeader) GetQR() uint8 {
+	mask := uint8(128) // 1000_0000b
+	var qr_field uint8 = ((*header).qr_opcode_aa_tc_rd & mask) >> 7
+	return qr_field
+}
+
+func (header *DNSHeader) GetOPCODE() uint8 {
+	mask := uint8(120) // 0111_1000b
+	var opcode_field uint8 = ((*header).qr_opcode_aa_tc_rd & mask) >> 3
+	return opcode_field
+}
+
+func (header *DNSHeader) GetAA() uint8 {
+	mask := uint8(4) // 0000_0100b
+	var aa_field uint8 = ((*header).qr_opcode_aa_tc_rd & mask) >> 2
+	return aa_field
+}
+
+func (header *DNSHeader) GetTC() uint8 {
+	mask := uint8(2) // 0000_0010b
+	var tc_field uint8 = ((*header).qr_opcode_aa_tc_rd & mask) >> 1
+	return tc_field
+}
+
+func (header *DNSHeader) GetRD() uint8 {
+	mask := uint8(1) // 0000_0001b
+	var rd_field uint8 = (*header).qr_opcode_aa_tc_rd & mask
+	return rd_field
+}
+
+func (header *DNSHeader) GetRA() uint8 {
+	mask := uint8(128) // 1000_0000b
+	var ra_field uint8 = ((*header).ra_z_rcode & mask) >> 7
+	return ra_field
+}
+
+func (header *DNSHeader) GetZ() uint8 {
+	mask := uint8(112) // 0111_0000b
+	var z_field uint8 = ((*header).ra_z_rcode & mask) >> 4
+	return z_field
+}
+
+func (header *DNSHeader) GetRCODE() uint8 {
+	mask := uint8(15) // 0000_1111b
+	var rcode_field uint8 = (*header).ra_z_rcode & mask
+	return rcode_field
+}
+
+func (header *DNSHeader) GetQDCOUNT() uint16 {
+	return (*header).qdcount
+}
+
+func (header *DNSHeader) GetANCOUNT() uint16 {
+	return (*header).ancount
+}
+
+func (header *DNSHeader) GetNSCOUNT() uint16 {
+	return (*header).nscount
+}
+
+func (header *DNSHeader) GetARCOUNT() uint16 {
+	return (*header).arcount
+}
+
+// DNSHEADER field-setting functions
 func (header *DNSHeader) SetID(ID uint16) {
 	(*header).id = ID
 }
