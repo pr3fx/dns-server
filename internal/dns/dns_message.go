@@ -82,3 +82,25 @@ func (message DNSMessage) Serialize() []byte {
 
 	return buf
 }
+
+
+// Parsing functions
+func ParseMessage(message_stream []byte) (DNSMessage, error) {
+	if len(message_stream) < 12 {
+		return DNSMessage{}, fmt.Errorf(`bytestream is fewer than the minimum of 12 bytes for DNS message (got %v bytes).`, len(message_stream))
+	}
+	parsed_header, err := ParseHeader(message_stream[:12])
+	if err != nil {
+		return DNSMessage{}, err
+	}
+	parsed_questions, questions_bytecount, err := ParseQuestions(message_stream[12:], parsed_header.qdcount)
+	if err != nil {
+		return DNSMessage{}, err
+	}
+	parsed_answers, _, err := ParseAnswers(message_stream[12+questions_bytecount:], parsed_header.ancount)
+	if err != nil {
+		return DNSMessage{}, err
+	}
+
+	return DNSMessage{header:parsed_header, question:parsed_questions, answer:parsed_answers}, nil
+}
