@@ -2,6 +2,7 @@ package dns
 
 import (
 	"encoding/binary"
+	"fmt"
 )
 
 
@@ -73,4 +74,46 @@ func (answer DNSAnswer) Serialize() []byte {
 	}
 
 	return buf
+}
+
+
+// Parsing functions
+func ParseAnswers(answer_stream []byte, ANCOUNT uint16) ([]DNSAnswer, int, error) {
+	stream_pos := 0
+	var answer_list []DNSAnswer
+	for i := 0; i < int(ANCOUNT); i++ {
+		NAME_len, err := getEncodedDomainLen(answer_stream[stream_pos:])
+		if err != nil {
+			return nil, 0, err
+		}
+		NAME_end_pos := stream_pos + int(NAME_len)
+		// Check if stream is big enough for TYPE, CLASS, TTL, RDLENGTH fields
+		if len(answer_stream) < NAME_end_pos + 12 {
+			return nil, 0, fmt.Errorf(`Bytestream is truncated`)
+		}
+		// Parse TYPE, CLASS, TTL, RDLENGTH
+		TYPE_parsed := RecordType(binary.BigEndian.Uint16(answer_stream[NAME_end_pos:NAME_end_pos+2]))
+		CLASS_parsed := binary.BigEndian.Uint16(answer_stream[NAME_end_pos+2:NAME_end_pos+4])
+		TTL_parsed := binary.BigEndian.Uint32(answer_stream[NAME_end_pos+4:NAME_end_pos+8])
+		RDLENGTH_parsed := binary.BigEndian.Uint32(answer_stream[NAME_end_pos+8:NAME_end_pos+12])
+		// Check if RDATA can fit in the remaining stream length
+		if len(answer_stream) < NAME_end_pos + 12 + int(RDLENGTH_parsed) {
+			return nil, 0, fmt.Errorf(`Bytestream is truncated, cannot read RDATA`)
+		}
+
+		// Create DNSAnswer from parsed values
+		parsed_answer := DNSAnswer{
+			name:answer_stream[stream_pos:NAME_end_pos],
+			ans_type:TYPE_parsed,
+			class:CLASS_parsed,
+			ttl:TTL_parsed,
+			rdlength:RDLENGTH_parsed,
+			rdata:answer_stream[NAME_end_pos+12:NAME_end_pos+12+int(RDLENGTH_parsed)],
+		}
+		answer_list = append(answer_list, parsed_answer)
+
+		// Update stream_pos to start at the next block
+		stream_pos = NAME_end_pos + 12 + int(RDLENGTH_parsed)
+	}
+	return answer_list, stream_pos, nil
 }
