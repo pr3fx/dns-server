@@ -52,9 +52,9 @@ func (question DNSQuestion) Serialize() []byte {
 
 
 // Parsing functions
-func ParseQuestions(question_stream []byte, QDCOUNT uint16) ([]DNSQuestion, error) {
+func ParseQuestions(question_stream []byte, QDCOUNT uint16) ([]DNSQuestion, int, error) {
 	if len(question_stream) < 5 {
-		return nil, fmt.Errorf(`bytestream is %v bytes, expected 5 or more.`, len(question_stream))
+		return nil, 0, fmt.Errorf(`bytestream is %v bytes, expected 5 or more.`, len(question_stream))
 	}
 
 	stream_pos := 0
@@ -62,12 +62,12 @@ func ParseQuestions(question_stream []byte, QDCOUNT uint16) ([]DNSQuestion, erro
 	for i := 0; i < int(QDCOUNT); i++ {
 		QNAME_len, err := getQNAMElen(question_stream[stream_pos:])
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		QNAME_end_pos := stream_pos + int(QNAME_len)
 		// Check if stream is big enough for the QTYPE and QCLASS fields
 		if len(question_stream) <  + QNAME_end_pos + 4 {
-			return nil, fmt.Errorf(`Bytestream is truncated`)
+			return nil, 0, fmt.Errorf(`Bytestream is truncated`)
 		}
 
 		QTYPE_parsed := RecordType(binary.BigEndian.Uint16(question_stream[QNAME_end_pos:QNAME_end_pos+2]))
@@ -85,7 +85,7 @@ func ParseQuestions(question_stream []byte, QDCOUNT uint16) ([]DNSQuestion, erro
 		stream_pos = QNAME_end_pos + 4
 	}
 
-	return question_list, nil
+	return question_list, stream_pos, nil
 }
 
 func getQNAMElen(buf []byte) (uint16, error) {
