@@ -37,22 +37,15 @@ func main() {
 		receivedData := string(buf[:size])
 		log.Info(fmt.Sprintf("Received %d bytes from %s: %s", size, source, receivedData))
 
-		// Create a DNS response (header and question)
-		dns_header := dns.DNSHeader{}
-		dns_header.SetID(1234)
-		dns_header.SetQR(1) // Set response type
-
-		dns_msg := dns.DNSMessage{}
-		dns_msg.SetHeader(dns_header)
-		dns_msg.AddQuestion(dns.NewDNSQuestion("codecrafters.io", dns.RecordType_A, 1))
-		dns_answer_type, err := dns.NewTypeA_Answer(net.IPv4(8,8,8,8))
+		// Create a DNS response
+		dns_response, err := dns.NewDNSMessageResponse(buf)
 		if err != nil {
-			fmt.Errorf(`Encountered error while creating dns_answer_type: %v`, err)
+			log.Error("Could not create DNS response message: ", err)
+			continue
 		}
-		dns_msg.AddAnswer(dns.NewDNSAnswer("codecrafters.io", uint16(1), uint32(60), dns_answer_type))
-		response := dns_msg.Serialize()
+		response_bytestream := dns_response.Serialize()
 
-		_, err = udpConn.WriteToUDP(response, source)
+		_, err = udpConn.WriteToUDP(response_bytestream, source)
 		if err != nil {
 			log.Error("Failed to send response:", err)
 		}
