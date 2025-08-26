@@ -132,3 +132,120 @@ func TestParse(t *testing.T) {
 		}
 	}
 }
+
+
+type testHeaderGettersWant struct {
+	id uint16
+	qr uint8
+	opcode uint8
+	aa uint8
+	tc uint8
+	rd uint8
+	ra uint8
+	z uint8
+	rcode uint8
+	qdcount uint16
+	ancount uint16
+	nscount uint16
+	arcount uint16
+}
+
+var TestVectors_HeaderGetters = []struct{
+	header DNSHeader
+	want testHeaderGettersWant
+}{                    //        1  15     1  1  1  1  7 15
+	{                 // id     qr_opcode_aa_tc_rd ra_z_rcode qdcount ancount nscount arcount
+		header:DNSHeader{65535, 255,               255,       0,      0,      10,     0},
+		want:testHeaderGettersWant{
+			id:65535,
+			qr:1,
+			opcode:15,
+			aa:1,
+			tc:1,
+			rd:1,
+			ra:1,
+			z:7,
+			rcode:15,
+			qdcount:0,
+			ancount:0,
+			nscount:10,
+			arcount:0,
+		},
+	},
+                      //        0  10     0  1  0  0  2 11
+	{                 // id     qr_opcode_aa_tc_rd ra_z_rcode qdcount     ancount     nscount arcount
+		header:DNSHeader{22,    82,                43,        65535,      65500,      2,      55},
+		want:testHeaderGettersWant{
+			id:22,
+			qr:0,
+			opcode:10,
+			aa:0,
+			tc:1,
+			rd:0,
+			ra:0,
+			z:2,
+			rcode:11,
+			qdcount:65535,
+			ancount:65500,
+			nscount:2,
+			arcount:55,
+		},
+	},
+}
+
+func TestHeaderGetters(t *testing.T) {
+	for _, testVector := range TestVectors_HeaderGetters {
+		got_id := testVector.header.GetID()
+		if got_id != testVector.want.id {
+			t.Errorf(`got_id = %v, want = %v`, got_id, testVector.want.id)
+		}
+		got_qr := testVector.header.GetQR()
+		if got_qr != testVector.want.qr {
+			t.Errorf(`got_qr = %v, want = %v`, got_qr, testVector.want.qr)
+		}
+		got_opcode := testVector.header.GetOPCODE()
+		if got_opcode != testVector.want.opcode {
+			t.Errorf(`got_opcode = %v, want = %v`, got_opcode, testVector.want.opcode)
+		}
+		got_aa := testVector.header.GetAA()
+		if got_aa != testVector.want.aa {
+			t.Errorf(`got_aa = %v, want = %v`, got_aa, testVector.want.aa)
+		}
+		got_tc := testVector.header.GetTC()
+		if got_tc != testVector.want.tc {
+			t.Errorf(`got_tc = %v, want = %v`, got_tc, testVector.want.tc)
+		}
+		got_rd := testVector.header.GetRD()
+		if got_rd != testVector.want.rd {
+			t.Errorf(`got_rd = %v, want = %v`, got_rd, testVector.want.rd)
+		}
+		got_ra := testVector.header.GetRA()
+		if got_ra != testVector.want.ra {
+			t.Errorf(`got_ra = %v, want = %v`, got_ra, testVector.want.ra)
+		}
+		got_z := testVector.header.GetZ()
+		if got_z != testVector.want.z {
+			t.Errorf(`got_z = %v, want = %v`, got_z, testVector.want.z)
+		}
+		got_rcode := testVector.header.GetRCODE()
+		if got_rcode != testVector.want.rcode {
+			t.Errorf(`got_rcode = %v, want = %v`, got_rcode, testVector.want.rcode)
+		}
+		got_qdcount := testVector.header.GetQDCOUNT()
+		if got_qdcount != testVector.want.qdcount {
+			t.Errorf(`got_qdcount = %v, want = %v`, got_qdcount, testVector.want.qdcount)
+		}
+		got_ancount := testVector.header.GetANCOUNT()
+		if got_ancount != testVector.want.ancount {
+			t.Errorf(`got_ancount = %v, want = %v`, got_ancount, testVector.want.ancount)
+		}
+		got_nscount := testVector.header.GetNSCOUNT()
+		if got_nscount != testVector.want.nscount {
+			t.Errorf(`got_nscount = %v, want = %v`, got_nscount, testVector.want.nscount)
+		}
+		got_arcount := testVector.header.GetARCOUNT()
+		if got_arcount != testVector.want.arcount {
+			t.Errorf(`got_arcount = %v, want = %v`, got_arcount, testVector.want.arcount)
+		}
+	}
+}
