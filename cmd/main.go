@@ -38,7 +38,7 @@ func main() {
 		log.Info(fmt.Sprintf("Received %d bytes from %s: %s", size, source, receivedData))
 
 		// Create a DNS response
-		dns_response, err := dns.NewDNSMessageResponse(buf)
+		dns_response, err := dns.NewDNSMessageResponse(buf[:size])
 		if err != nil {
 			log.Error("Could not create DNS response message: ", err)
 			continue
